@@ -28,9 +28,12 @@ Thank you for your interest in contributing to `jsonlogic-fast`!
    - Once your PR with the bumped version is merged into `main`, create and push a git tag matching the version format `v*.*.*` (e.g., `git tag v0.2.0 && git push origin v0.2.0`).
 
 3. **Automated Workflows:**
-   - The tag push triggers the `Publish to crates.io` workflow (`publish-crates.yml`).
+   - The tag push triggers the `Publish to crates.io` workflow (`publish-crates.yml`), which runs in the `crates-io` GitHub environment.
    - The workflow verifies that the pushed tag matches the package version in `Cargo.toml`.
-   - The workspace tests are run in full (`cargo test --workspace --verbose`).
-   - If successful, the crate is published to crates.io.
+   - The core crate tests are run (`cargo test -p jsonlogic-fast`).
+   - If successful, the crate is published to crates.io using [Trusted Publishing](https://crates.io/docs/trusted-publishing) (OIDC via `rust-lang/crates-io-auth-action`), so no long-lived API token is stored in the repository. The trusted publisher is configured in the crate settings on crates.io for this repository, the `publish-crates.yml` workflow, and the `crates-io` environment.
    - Finally, a GitHub Release is automatically created with auto-generated release notes based on commit history.
-   - Creating the GitHub Release automatically triggers the `Publish to PyPI` workflow (`publish-pypi.yml`), which builds source distributions and binary wheels for multiple architectures and publishes them to PyPI.
+   - The PyPI workflow (`publish-pypi.yml`) is **not** triggered by that release, because releases created with `GITHUB_TOKEN` do not start other workflows. Run it manually (`workflow_dispatch`) when publishing to PyPI.
+
+4. **MSRV:**
+   - The minimum supported Rust version of the published crate is set by `rust-version` in the root `Cargo.toml` and checked by the `MSRV` CI job. Raise it there (and in that job) if a dependency upgrade requires a newer compiler.

@@ -4,17 +4,17 @@ on:
   push:
     tags:
       - 'v*.*.*'
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   publish:
     name: Publish jsonlogic-fast to crates.io
     runs-on: ubuntu-latest
+    environment: crates-io
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
@@ -32,10 +32,16 @@ jobs:
           echo "Success: Tag version ($TAG_VERSION) matches Cargo.toml version ($CARGO_VERSION)"
 
       - name: Run tests
-        run: cargo test --workspace --verbose
+        run: cargo test -p jsonlogic-fast --verbose
+
+      - name: Authenticate with crates.io (Trusted Publishing)
+        uses: rust-lang/crates-io-auth-action@v1
+        id: auth
 
       - name: Publish crate
-        run: cargo publish --package jsonlogic-fast --token ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo publish -p jsonlogic-fast
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')

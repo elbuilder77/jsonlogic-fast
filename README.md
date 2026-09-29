@@ -27,7 +27,7 @@ See [BENCHMARKS.md](BENCHMARKS.md) for detailed performance stats.
 
 ```toml
 [dependencies]
-jsonlogic-fast = "0.1"
+jsonlogic-fast = "0.2"
 ```
 
 ### Python

@@ -41,6 +41,24 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cd core && cargo test --verbose
 
+  msrv:
+    name: MSRV (1.80)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@1.80
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check -p jsonlogic-fast --locked
+
+  package:
+    name: Package dry run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo publish --dry-run -p jsonlogic-fast
+
   audit:
     name: Security audit
     runs-on: ubuntu-latest
